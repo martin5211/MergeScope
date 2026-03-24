@@ -1,0 +1,81 @@
+# MergeScope configuration
+# Copy this file to your project root and adjust values.
+
+# GitHub repository (owner/repo)
+repo: ""
+
+# Jira settings
+jira_project_prefix: ""          # e.g. "PROJ" — leave empty to match all projects
+jira_base_url: ""                # e.g. "https://company.jira.com"
+
+# Language for the audit prompt and report
+language: "en"
+response_language: "English"
+
+# Custom prompt template (supports {repo}, {from_date}, {to_date}, {fix_version})
+# prompt_template: |
+#   Necesito auditar tickets mergeados entre {from_date} y {to_date}.
+#   La fixVersion esperada es {fix_version}.
+#   Extrae los IDs de JIRA desde los merge commits del repositorio {repo}
+#   y valida su fixVersion.
+
+# LLM provider and model
+# Supported providers: anthropic, bedrock, copilot, local
+llm:
+  provider: "anthropic"
+  model: "claude-sonnet-4-6-20250620"
+  # base_url: ""                 # override API endpoint (required for copilot/local)
+  # api_key: ""                  # override API key (or use env vars below)
+
+# Provider examples:
+#
+# Anthropic (default):
+#   provider: "anthropic"
+#   model: "claude-sonnet-4-6-20250620"
+#   # uses ANTHROPIC_API_KEY env var
+#
+# AWS Bedrock:
+#   provider: "bedrock"
+#   model: "us.anthropic.claude-sonnet-4-20250514-v1:0"
+#   # uses AWS credentials
+#
+# GitHub Copilot:
+#   provider: "copilot"
+#   model: "claude-sonnet-4"
+#   base_url: "https://api.githubcopilot.com"
+#   # uses GITHUB_TOKEN or MERGESCOPE_LLM_API_KEY env var
+#
+# Local LLM (LM Studio, Ollama, etc.):
+#   provider: "local"
+#   model: "qwen3-9b"
+#   base_url: "http://localhost:1234/v1"
+
+# MCP server configuration
+# Two modes: inline (standalone) or Amazon Q lookup (name-only).
+# When "command" is set, the server runs directly — no Amazon Q needed.
+# When only "name" is set, it looks up that server in Amazon Q config.
+mcp:
+  config_path: ""                # auto-discovers Amazon Q config if empty
+  servers:
+    github:
+      name: "github-mcp-server"
+    jira:
+      name: "atlassian-mcp-server"
+
+# Standalone example (no Amazon Q required):
+#
+# mcp:
+#   servers:
+#     github:
+#       name: "github-mcp-server"
+#       command: "npx"
+#       args: ["-y", "@anthropic/github-mcp-server"]
+#       env:
+#         GITHUB_TOKEN: "ghp_..."
+#     jira:
+#       name: "atlassian-mcp-server"
+#       command: "npx"
+#       args: ["-y", "@anthropic/atlassian-mcp-server"]
+#       env:
+#         JIRA_API_TOKEN: "..."
+#         JIRA_URL: "https://company.atlassian.net"
