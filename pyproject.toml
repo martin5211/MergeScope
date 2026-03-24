@@ -39,6 +39,9 @@ Homepage = "https://github.com/martin5211/MergeScope"
 Repository = "https://github.com/martin5211/MergeScope"
 Issues = "https://github.com/martin5211/MergeScope/issues"
 
+[dependency-groups]
+dev = ["pytest>=9.0"]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/mergescope"]
 
