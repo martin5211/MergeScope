@@ -1,5 +1,9 @@
 # MergeScope
 
+[![PyPI](https://img.shields.io/pypi/v/mergescope)](https://pypi.org/project/mergescope/)
+[![Build](https://github.com/martin5211/MergeScope/actions/workflows/publish.yml/badge.svg)](https://github.com/martin5211/MergeScope/actions/workflows/publish.yml)
+[![Python](https://img.shields.io/pypi/pyversions/mergescope)](https://pypi.org/project/mergescope/)
+
 Audits merged PRs against Jira tickets. Extracts Jira IDs from PR titles, descriptions, branch names, and commit messages, then validates each ticket's fixVersion against your expected release.
 
 Powered by a LangGraph agent that talks to GitHub and Jira through MCP servers. Works standalone or with Amazon Q.
@@ -40,9 +44,18 @@ mergescope \
 | `--language` | Response language (e.g. Spanish) |
 | `--verbose` | Debug logging |
 
-### Multilingual prompts
+### Custom prompts
 
-Set a custom prompt in any language via `mergescope.yaml`:
+Override the default prompt in `mergescope.yaml`. Supports `{repo}`, `{from_date}`, `{to_date}`, `{fix_version}`:
+
+```yaml
+prompt_template: |
+  I need to audit tickets merged between {from_date} and {to_date}.
+  The expected fixVersion is {fix_version}.
+  Extract Jira IDs from merge commits in {repo} and validate their fixVersion.
+```
+
+Works in any language:
 
 ```yaml
 language: "es"
