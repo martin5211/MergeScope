@@ -77,47 +77,46 @@ async def run_audit(
         console.print(f"[red]MCP Error:[/red] {exc}")
         sys.exit(1)
 
-    async with client:
-        tools = client.get_tools()
-        if not tools:
-            console.print("[red]Error:[/red] No MCP tools available. Check your Amazon Q MCP configuration.")
-            sys.exit(1)
+    tools = await client.get_tools()
+    if not tools:
+        console.print("[red]Error:[/red] No MCP tools available. Check your Amazon Q MCP configuration.")
+        sys.exit(1)
 
-        logger.info("Loaded %d MCP tools", len(tools))
-        agent = build_agent(tools, cfg)
-        messages = build_prompt(cfg, cfg.repo, from_date, to_date, fix_version)
+    logger.info("Loaded %d MCP tools", len(tools))
+    agent = build_agent(tools, cfg)
+    messages = build_prompt(cfg, cfg.repo, from_date, to_date, fix_version)
 
-        data = None
-        last_error = None
-        for attempt in range(MAX_RETRIES + 1):
-            try:
-                console.print(f"[dim]Running audit (attempt {attempt + 1})...[/dim]")
-                result = await agent.ainvoke(
-                    {"messages": messages},
-                    config={"recursion_limit": 50},
-                )
-                final_content = result["messages"][-1].content
-                data = parse_agent_output(final_content)
-                break
-            except ValueError:
-                last_error = "Agent returned invalid JSON"
-                if attempt < MAX_RETRIES:
-                    from langchain_core.messages import HumanMessage
-                    messages = result["messages"] + [
-                        HumanMessage(content="Your response was not valid JSON. Return ONLY the JSON object, no markdown fences or extra text.")
-                    ]
-                    logger.warning("Retrying: %s", last_error)
-            except Exception as exc:
-                last_error = str(exc)
-                if attempt < MAX_RETRIES:
-                    logger.warning("Attempt %d failed: %s. Retrying...", attempt + 1, exc)
-                    await asyncio.sleep(2 ** attempt)
+    data = None
+    last_error = None
+    for attempt in range(MAX_RETRIES + 1):
+        try:
+            console.print(f"[dim]Running audit (attempt {attempt + 1})...[/dim]")
+            result = await agent.ainvoke(
+                {"messages": messages},
+                config={"recursion_limit": 50},
+            )
+            final_content = result["messages"][-1].content
+            data = parse_agent_output(final_content)
+            break
+        except ValueError:
+            last_error = "Agent returned invalid JSON"
+            if attempt < MAX_RETRIES:
+                from langchain_core.messages import HumanMessage
+                messages = result["messages"] + [
+                    HumanMessage(content="Your response was not valid JSON. Return ONLY the JSON object, no markdown fences or extra text.")
+                ]
+                logger.warning("Retrying: %s", last_error)
+        except Exception as exc:
+            last_error = str(exc)
+            if attempt < MAX_RETRIES:
+                logger.warning("Attempt %d failed: %s. Retrying...", attempt + 1, exc)
+                await asyncio.sleep(2 ** attempt)
 
-        if data is None:
-            console.print(f"[red]Error:[/red] Audit failed after {MAX_RETRIES + 1} attempts. Last error: {last_error}")
-            sys.exit(1)
+    if data is None:
+        console.print(f"[red]Error:[/red] Audit failed after {MAX_RETRIES + 1} attempts. Last error: {last_error}")
+        sys.exit(1)
 
-        render_report(data, jira_base_url=cfg.jira_base_url, repo=cfg.repo, console=out)
+    render_report(data, jira_base_url=cfg.jira_base_url, repo=cfg.repo, console=out)
 
 
 def main() -> None:

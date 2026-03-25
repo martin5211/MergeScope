@@ -15,6 +15,7 @@ _AMAZONQ_SEARCH_PATHS = [
     ".amazonq/default.json",
     "~/.aws/amazonq/mcp.json",
     "~/.aws/amazonq/default.json",
+    "~/.aws/amazonq/agents/default.json",
 ]
 
 
