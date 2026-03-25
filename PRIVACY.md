@@ -14,6 +14,10 @@ All API calls are made directly from your machine using your own credentials. Me
 
 MergeScope reads credentials from environment variables or your Amazon Q / MCP server configuration. It never writes, copies, or transmits credentials anywhere.
 
+## MCP server mode
+
+When running `mergescope serve`, MergeScope acts as an MCP tool server over stdio. The calling application (e.g. Amazon Q) sends audit requests, and MergeScope processes them using the same pipeline — including LLM calls to your configured provider. No additional data is collected or stored.
+
 ## Third-party services
 
 MergeScope has no servers, no accounts, and no backend. The only external calls are the ones you configure (GitHub, Jira, LLM provider).
