@@ -23,12 +23,14 @@ uv tool install mergescope
 ## Usage
 
 ```bash
-mergescope \
+mergescope audit \
   -f 2026-03-01 \
   -t 2026-03-31 \
   -v "1.2.0" \
   -r company/backend
 ```
+
+The `audit` subcommand is the default — you can omit it and pass flags directly for backwards compatibility.
 
 | Flag | Description |
 |---|---|
@@ -128,6 +130,34 @@ You can mix both — some servers inline, others from Amazon Q.
 ### Environment variables
 
 `MERGESCOPE_REPO`, `MERGESCOPE_LLM_PROVIDER`, `MERGESCOPE_LLM_MODEL`, `MERGESCOPE_LLM_BASE_URL`, `MERGESCOPE_LLM_API_KEY`, `MERGESCOPE_JIRA_BASE_URL`, `MERGESCOPE_LANGUAGE`
+
+## MCP Server Mode
+
+MergeScope can run as an MCP server, so tools like Amazon Q or Claude Code can call it directly.
+
+```bash
+mergescope serve --config mergescope.yaml
+```
+
+Register it in your Amazon Q MCP config (`~/.aws/amazonq/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "mergescope": {
+      "command": "uvx",
+      "args": [
+        "mergescope",
+        "serve",
+        "--config",
+        "/path/to/mergescope.yaml"
+      ]
+    }
+  }
+}
+```
+
+This exposes an `audit_merges` tool that takes `repo`, `from_date`, `to_date`, and `fix_version` as parameters. The full LangGraph agent pipeline runs under the hood.
 
 ## Requirements
 
