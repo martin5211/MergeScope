@@ -31,7 +31,10 @@ async def execute_audit(
     fix_version: str,
 ) -> dict[str, Any]:
     client = create_mcp_client(cfg)
-    tools = await client.get_tools()
+    try:
+        tools = await client.get_tools()
+    except BaseException as exc:
+        raise RuntimeError(f"Failed to connect to MCP servers: {exc}") from exc
     if not tools:
         raise RuntimeError("No MCP tools available. Check your MCP configuration.")
 
